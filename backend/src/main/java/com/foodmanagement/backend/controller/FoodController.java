@@ -21,17 +21,39 @@ public class FoodController {
     }
 
     @PostMapping
-    public Food addFood(@RequestBody Food food) {
-        return foodService.addFood(food);
+    public ResponseEntity<String> addFood(@RequestBody Food food) {
+        String response = foodService.addFood(food);
+
+        if (response.equals("Item already exists")) {
+            // Return 409 Conflict status if it exists
+            return ResponseEntity.status(409).body(response);
+        }
+
+        // Return 200 OK or 201 Created if successful
+        return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/{id}")
-    public Food updateFood(@PathVariable Long id, @RequestBody Food food) {
-        return foodService.updateFood(id, food);
+    // PUT /api/food/{itemName}?action=increase
+    @PutMapping("/{itemName}")
+    public ResponseEntity<Food> updateFoodQuantity(
+            @PathVariable String itemName,
+            @RequestParam String action) {
+
+        try {
+            Food updatedFood = foodService.updateFoodQuantity(itemName, action);
+            return ResponseEntity.ok(updatedFood);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteFood(@PathVariable Long id) {
-        foodService.deleteFood(id);
+    @DeleteMapping("/{itemName}")
+    public ResponseEntity<String> deleteFood(@PathVariable String itemName) {
+        try {
+            foodService.deleteFood(itemName);
+            return ResponseEntity.ok("Item deleted successfully");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
     }
 }
