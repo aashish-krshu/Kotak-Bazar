@@ -6,4 +6,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface FoodRepository extends JpaRepository<Food, Long> {
+    boolean existsByItemName(String itemName);
+
+    Optional<Food> findByItemName(String itemName);
+
+    void deleteByItemName(String itemName);
 }
